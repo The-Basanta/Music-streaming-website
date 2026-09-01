@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>BDplay</title>
+
+    <link rel="stylesheet" href="assets/style.css" />
+</head>
+
+<body>
+
+    <!-- HEADER -->
+    <header>
+
+        <div class="logo">BDplay</div>
+
+        <div class="nav-center">
+
+            <!-- SEARCH -->
+            <div class="search-box">
+
+                <span class="search-icon">&#128269;</span>
+
+                <input
+                    type="text"
+                    id="searchInput"
+                    placeholder="Search song or artist..."
+                    oninput="handleSearch(this.value)"
+                />
+
+                <button
+                    class="clear-search"
+                    onclick="clearSearch()"
+                    type="button"
+                    title="Clear search"
+                >
+                    &times;
+                </button>
+
+                <div
+                    class="search-results"
+                    id="searchResults"
+                ></div>
+
+            </div>
+
+            <!-- NAVIGATION -->
+            <nav>
+
+                <a
+                    id="nav-home"
+                    class="active"
+                    onclick="switchTab('home')"
+                >
+                    Home
+                </a>
+
+                <a
+                    id="nav-hits"
+                    onclick="switchTab('hits')"
+                >
+                    Top Hits
+                </a>
+
+                <a
+                    id="nav-playlists"
+                    onclick="switchTab('playlists')"
+                >
+                    Playlists
+                </a>
+
+            </nav>
+
+        </div>
+
+    </header>
+
+
+    <!-- HOME -->
+    <div
+        id="view-home"
+        class="view-section active"
+    >
+
+        <main>
+
+            <!-- CENTER GLYPH -->
+            <svg
+                class="center-glyph"
+                viewBox="0 0 100 100"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+            >
+
+                <ellipse
+                    cx="50"
+                    cy="50"
+                    rx="40"
+                    ry="15"
+                />
+
+                <ellipse
+                    cx="50"
+                    cy="50"
+                    rx="30"
+                    ry="25"
+                />
+
+                <circle
+                    cx="50"
+                    cy="50"
+                    r="8"
+                    fill="currentColor"
+                />
+
+            </svg>
+
+            <!-- ALBUM ORBIT -->
+            <div
+                class="orbit-container"
+                id="orbitRing"
+            ></div>
+
+        </main>
+
+    </div>
+
+
+    <!-- TOP HITS -->
+    <div
+        id="view-hits"
+        class="view-section"
+    >
+
+        <div class="grid-container">
+
+            <div class="section-title">
+                Billboard Global Top Hits
+            </div>
+
+            <div
+                class="media-grid"
+                id="billboardGrid"
+            ></div>
+
+        </div>
+
+    </div>
+
+
+    <!-- PLAYLISTS -->
+    <div
+        id="view-playlists"
+        class="view-section"
+    >
+
+        <div class="grid-container">
+
+            <div class="section-title-row">
+
+                <div class="section-title">
+                    Your Playlists
+                </div>
+
+                <button
+                    class="action-btn"
+                    onclick="createNewPlaylist()"
+                >
+                    + Create Playlist
+                </button>
+
+            </div>
+
+            <div
+                class="media-grid"
+                id="playlistsGrid"
+            ></div>
+
+        </div>
+
+    </div>
+
+
+    <!-- DETAIL MODAL -->
+    <div
+        class="modal-overlay"
+        id="detailModal"
+    >
+
+        <div class="modal-content">
+
+            <div class="modal-header-nav">
+
+                <button
+                    class="back-btn"
+                    onclick="closeModal()"
+                >
+                    &#129144; Back
+                </button>
+
+            </div>
+
+            <div id="modalBody"></div>
+
+        </div>
+
+    </div>
+
+
+    <!-- PLAYER BAR -->
+    <div
+        class="player-bar"
+        id="playerBar"
+    >
+
+        <!-- LEFT -->
+        <div class="player-left">
+
+            <img
+                src="https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?w=100&q=80"
+                id="playerTrackImg"
+                alt="Cover"
+            />
+
+            <div>
+
+                <div
+                    class="player-title"
+                    id="playerTrackTitle"
+                >
+                    Select a Track
+                </div>
+
+                <div class="player-subtitle">
+
+                    <span
+                        id="playerTrackArtist"
+                        class="link-span"
+                        onclick="onPlayerArtistClick()"
+                    >
+                        BDplay Player
+                    </span>
+
+                    &bull;
+
+                    <span
+                        id="playerTrackAlbum"
+                        class="link-span"
+                        onclick="onPlayerAlbumClick()"
+                    >
+                        Album
+                    </span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- CENTER -->
+        <div class="player-center">
+
+            <div class="player-controls">
+
+                <button
+                    onclick="prevTrack()"
+                    title="Previous"
+                >
+                    &#10094;&#10094;
+                </button>
+
+                <button
+                    class="play-btn"
+                    id="mainPlayBtn"
+                    onclick="togglePlay()"
+                >
+                    &#9654;
+                </button>
+
+                <button
+                    onclick="nextTrack()"
+                    title="Next"
+                >
+                    &#10095;&#10095;
+                </button>
+
+                <button
+                    class="add-playlist-btn"
+                    onclick="addCurrentToPlaylist()"
+                    title="Add to Playlist"
+                >
+                    &#43; Playlist
+                </button>
+
+            </div>
+
+
+            <!-- PROGRESS -->
+            <div class="progress-container">
+
+                <span id="currentTime">
+                    0:00
+                </span>
+
+                <input
+                    type="range"
+                    id="progressBar"
+                    value="0"
+                    min="0"
+                    max="100"
+                    oninput="seekTrack(this.value)"
+                />
+
+                <span id="durationTime">
+                    0:00
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <!-- RIGHT -->
+        <div class="player-right">
+
+            <span
+                style="
+                    font-size: 0.65rem;
+                    color: var(--text-muted);
+                "
+            >
+                VOL
+            </span>
+
+            <input
+                type="range"
+                id="volumeBar"
+                value="80"
+                min="0"
+                max="100"
+                oninput="setVolume(this.value)"
+                style="width: 70px;"
+            />
+
+        </div>
+
+    </div>
+
+
+    <!-- AUDIO ELEMENT -->
+    <audio
+        id="audioPlayer"
+        preload="metadata"
+    ></audio>
+
+
+    <!-- JAVASCRIPT -->
+    <script src="script.js"></script>
+
+</body>
+
+</html>
