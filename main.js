@@ -35,7 +35,23 @@ let currentTrack = null;
 let playlists = {};
 
 
+// ============================================================
+// PAGE CACHE
+// ============================================================
+
+// 20 minutes in milliseconds
+const PAGE_CACHE_DURATION = 20 * 60 * 1000;
+
+// Separate last-loaded timestamps
+// for Home and Top Hits
+let homeLastLoaded = 0;
+let hitsLastLoaded = 0;
+
+
+// ============================================================
 // HTML AUDIO PLAYER
+// ============================================================
+
 const audio = document.getElementById("audioPlayer");
 
 
@@ -56,10 +72,32 @@ window.onload = async () => {
 // HOME ORBIT
 // ============================================================
 
-async function loadHomeOrbitDynamic() {
+async function loadHomeOrbitDynamic(forceReload = false) {
+
+    const now = Date.now();
+
+
+    // --------------------------------------------------------
+    // 20-MINUTE CACHE
+    // --------------------------------------------------------
+    // If Home was loaded less than 20 minutes ago,
+    // do nothing.
+    // --------------------------------------------------------
+
+    if (
+        !forceReload &&
+        homeLastLoaded &&
+        (now - homeLastLoaded) < PAGE_CACHE_DURATION
+    ) {
+
+        return;
+
+    }
+
 
     const orbit =
         document.getElementById("orbitRing");
+
 
     orbit.innerHTML =
         '<div style="color:var(--text-muted)">Loading...</div>';
@@ -161,6 +199,14 @@ async function loadHomeOrbitDynamic() {
 
 
     renderOrbit(dynamicTracks);
+
+
+    // --------------------------------------------------------
+    // SAVE SUCCESSFUL LOAD TIME
+    // --------------------------------------------------------
+
+    homeLastLoaded =
+        Date.now();
 
 }
 
@@ -1581,7 +1627,28 @@ function openPlaylistDetails(
 // TOP HITS
 // ============================================================
 
-async function loadBillboardHits() {
+async function loadBillboardHits(forceReload = false) {
+
+    const now = Date.now();
+
+
+    // --------------------------------------------------------
+    // 20-MINUTE CACHE
+    // --------------------------------------------------------
+    // If Top Hits was loaded less than 20 minutes ago,
+    // do nothing.
+    // --------------------------------------------------------
+
+    if (
+        !forceReload &&
+        hitsLastLoaded &&
+        (now - hitsLastLoaded) < PAGE_CACHE_DURATION
+    ) {
+
+        return;
+
+    }
+
 
     const grid =
         document.getElementById(
@@ -1767,6 +1834,14 @@ async function loadBillboardHits() {
         }
     );
 
+
+    // --------------------------------------------------------
+    // SAVE SUCCESSFUL LOAD TIME
+    // --------------------------------------------------------
+
+    hitsLastLoaded =
+        Date.now();
+
 }
 
 
@@ -1796,7 +1871,10 @@ async function switchTab(tab) {
         );
 
 
+    // ========================================================
     // HOME
+    // ========================================================
+
     if (tab === "home") {
 
         document
@@ -1817,13 +1895,26 @@ async function switchTab(tab) {
             );
 
 
-        // Reload Home EVERY TIME
+        // ----------------------------------------------------
+        // Only loads if Home:
+        //
+        // - Has never loaded
+        // OR
+        // - Was loaded more than 20 minutes ago
+        //
+        // Clicking Home repeatedly within 20 minutes
+        // will NOT reload it.
+        // ----------------------------------------------------
+
         await loadHomeOrbitDynamic();
 
     }
 
 
+    // ========================================================
     // TOP HITS
+    // ========================================================
+
     else if (tab === "hits") {
 
         document
@@ -1844,13 +1935,26 @@ async function switchTab(tab) {
             );
 
 
-        // Reload Top Hits EVERY TIME
+        // ----------------------------------------------------
+        // Only loads if Top Hits:
+        //
+        // - Has never loaded
+        // OR
+        // - Was loaded more than 20 minutes ago
+        //
+        // Clicking Top Hits repeatedly within 20 minutes
+        // will NOT reload it.
+        // ----------------------------------------------------
+
         await loadBillboardHits();
 
     }
 
 
+    // ========================================================
     // PLAYLISTS
+    // ========================================================
+
     else if (
         tab === "playlists"
     ) {
